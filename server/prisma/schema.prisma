@@ -1,0 +1,290 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  SOCIETY_ADMIN
+  RESIDENT
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum ContactStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum FlatStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum Gender {
+  FEMALE
+  MALE
+  NON_BINARY
+  OTHER
+  PREFER_NOT_TO_SAY
+}
+
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
+model Society {
+  id               Int               @id @default(autoincrement()) @map("id")
+  name             String            @db.VarChar(160)
+  code             String            @unique @db.VarChar(40)
+  createdAt        DateTime          @default(now()) @map("created_at")
+  updatedAt        DateTime          @updatedAt @map("updated_at")
+  users            User[]
+  categories       Category[]
+  contacts         Contact[]
+  flats            Flat[]
+  contactSequences ContactSequence[]
+  auditLogs        AuditLog[]
+
+  @@map("societies")
+}
+
+model User {
+  id           Int        @id @default(autoincrement()) @map("id")
+  societyId    Int        @map("society_id")
+  name         String     @db.VarChar(120)
+  email        String     @db.VarChar(180)
+  passwordHash String     @map("password_hash") @db.VarChar(255)
+  role         UserRole   @default(RESIDENT)
+  status       UserStatus @default(ACTIVE)
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+  society      Society    @relation(fields: [societyId], references: [id], onDelete: Restrict)
+  createdContacts Contact[] @relation("ContactCreatedBy")
+  updatedContacts Contact[] @relation("ContactUpdatedBy")
+
+  @@unique([societyId, email])
+  @@index([societyId, role])
+  @@map("users")
+}
+
+model Category {
+  id            Int           @id @default(autoincrement())
+  societyId     Int           @map("society_id")
+  name          String        @db.VarChar(80)
+  isSystem      Boolean       @default(false) @map("is_system")
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+  society       Society       @relation(fields: [societyId], references: [id], onDelete: Cascade)
+  subcategories Subcategory[]
+  contacts      Contact[]
+
+  @@unique([societyId, name])
+  @@map("categories")
+}
+
+model Subcategory {
+  id         Int       @id @default(autoincrement())
+  societyId  Int       @map("society_id")
+  categoryId Int       @map("category_id")
+  name       String    @db.VarChar(100)
+  isSystem   Boolean   @default(false) @map("is_system")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+  category   Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  contacts   Contact[]
+
+  @@unique([categoryId, name])
+  @@index([societyId])
+  @@map("subcategories")
+}
+
+model Contact {
+  id              Int                  @id @default(autoincrement())
+  societyId       Int                  @map("society_id")
+  contactCode     String               @map("contact_code") @db.VarChar(20)
+  categoryId      Int                  @map("category_id")
+  subcategoryId   Int                  @map("subcategory_id")
+  personName      String               @map("person_name") @db.VarChar(140)
+  gender          Gender
+  photoPath       String?              @map("photo_path") @db.VarChar(255)
+  mobileNumber    String               @map("mobile_number") @db.VarChar(20)
+  alternateMobile String?              @map("alternate_mobile") @db.VarChar(20)
+  whatsappAvailable Boolean            @default(false) @map("whatsapp_available")
+  status          ContactStatus        @default(ACTIVE)
+  createdById     Int?                 @map("created_by_id")
+  updatedById     Int?                 @map("updated_by_id")
+  createdAt       DateTime             @default(now()) @map("created_at")
+  updatedAt       DateTime             @updatedAt @map("updated_at")
+  society         Society              @relation(fields: [societyId], references: [id], onDelete: Cascade)
+  category        Category             @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  subcategory     Subcategory          @relation(fields: [subcategoryId], references: [id], onDelete: Restrict)
+  createdBy       User?                @relation("ContactCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy       User?                @relation("ContactUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+  workDetail      ContactWorkDetail?
+  medicalDetail   MedicalDetail?
+  workTypes       ContactWorkType[]
+  services        ContactService[]
+  flatAssociations ContactFlatAssociation[]
+
+  @@unique([societyId, contactCode])
+  @@index([societyId, personName])
+  @@index([societyId, mobileNumber])
+  @@index([societyId, status])
+  @@index([categoryId, subcategoryId])
+  @@map("contacts")
+}
+
+model ContactWorkDetail {
+  id              Int       @id @default(autoincrement())
+  contactId       Int       @unique @map("contact_id")
+  experienceYears Int?      @map("experience_years")
+  workingSince    Int?      @map("working_since")
+  preferredStart  String?   @map("preferred_start") @db.VarChar(10)
+  preferredEnd    String?   @map("preferred_end") @db.VarChar(10)
+  serviceArea     String?   @map("service_area") @db.VarChar(160)
+  availability    String?   @db.VarChar(120)
+  charges         String?   @db.VarChar(120)
+  remarks         String?   @db.Text
+  contact         Contact   @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  workingDays     ContactWorkingDay[]
+
+  @@map("contact_work_details")
+}
+
+model ContactWorkingDay {
+  id           Int               @id @default(autoincrement())
+  workDetailId Int               @map("work_detail_id")
+  day          DayOfWeek
+  workDetail   ContactWorkDetail @relation(fields: [workDetailId], references: [id], onDelete: Cascade)
+
+  @@unique([workDetailId, day])
+  @@map("contact_working_days")
+}
+
+model WorkType {
+  id        Int      @id @default(autoincrement())
+  societyId Int      @map("society_id")
+  name      String   @db.VarChar(100)
+  isSystem  Boolean  @default(false) @map("is_system")
+  sourceNote String? @map("source_note") @db.VarChar(255)
+  contacts  ContactWorkType[]
+
+  @@unique([societyId, name])
+  @@map("work_types")
+}
+
+model ContactWorkType {
+  contactId  Int      @map("contact_id")
+  workTypeId Int      @map("work_type_id")
+  contact    Contact  @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  workType   WorkType @relation(fields: [workTypeId], references: [id], onDelete: Restrict)
+
+  @@id([contactId, workTypeId])
+  @@map("contact_work_types")
+}
+
+model Service {
+  id        Int      @id @default(autoincrement())
+  societyId Int      @map("society_id")
+  name      String   @db.VarChar(120)
+  isSystem  Boolean  @default(false) @map("is_system")
+  contacts  ContactService[]
+
+  @@unique([societyId, name])
+  @@map("services")
+}
+
+model ContactService {
+  contactId Int     @map("contact_id")
+  serviceId Int     @map("service_id")
+  contact   Contact @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  service   Service @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+
+  @@id([contactId, serviceId])
+  @@map("contact_services")
+}
+
+model Flat {
+  id        Int        @id @default(autoincrement())
+  societyId Int        @map("society_id")
+  building  String     @db.VarChar(40)
+  flatNumber String    @map("flat_number") @db.VarChar(40)
+  floor     String?    @db.VarChar(20)
+  status    FlatStatus @default(ACTIVE)
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
+  society   Society    @relation(fields: [societyId], references: [id], onDelete: Cascade)
+  contactAssociations ContactFlatAssociation[]
+
+  @@unique([societyId, building, flatNumber])
+  @@index([societyId, status])
+  @@map("flats")
+}
+
+model ContactFlatAssociation {
+  id             Int      @id @default(autoincrement())
+  societyId      Int      @map("society_id")
+  contactId      Int      @map("contact_id")
+  flatId         Int      @map("flat_id")
+  relationship   String?  @db.VarChar(100)
+  timing         String?  @db.VarChar(120)
+  remarks        String?  @db.Text
+  createdAt      DateTime @default(now()) @map("created_at")
+  contact        Contact  @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  flat           Flat     @relation(fields: [flatId], references: [id], onDelete: Cascade)
+
+  @@unique([contactId, flatId, relationship])
+  @@index([societyId, flatId])
+  @@map("contact_flat_associations")
+}
+
+model MedicalDetail {
+  id                    Int      @id @default(autoincrement())
+  contactId             Int      @unique @map("contact_id")
+  specialization         String?  @db.VarChar(120)
+  clinicName             String?  @map("clinic_name") @db.VarChar(160)
+  clinicAddress          String?  @map("clinic_address") @db.Text
+  clinicPhone            String?  @map("clinic_phone") @db.VarChar(20)
+  consultationTiming     String?  @map("consultation_timing") @db.VarChar(120)
+  appointmentAvailability String? @map("appointment_availability") @db.VarChar(120)
+  homeVisitStatus        Boolean? @map("home_visit_status")
+  contact                Contact  @relation(fields: [contactId], references: [id], onDelete: Cascade)
+
+  @@map("medical_details")
+}
+
+model ContactSequence {
+  societyId Int     @id @map("society_id")
+  nextValue Int     @default(1) @map("next_value")
+  society   Society @relation(fields: [societyId], references: [id], onDelete: Cascade)
+
+  @@map("contact_sequences")
+}
+
+model AuditLog {
+  id          Int      @id @default(autoincrement())
+  societyId   Int      @map("society_id")
+  actorUserId Int?     @map("actor_user_id")
+  action      String   @db.VarChar(80)
+  entityType  String   @map("entity_type") @db.VarChar(80)
+  entityId    Int?     @map("entity_id")
+  metadata    Json?
+  createdAt   DateTime @default(now()) @map("created_at")
+  society     Society  @relation(fields: [societyId], references: [id], onDelete: Cascade)
+
+  @@index([societyId, entityType, entityId])
+  @@map("audit_logs")
+}
