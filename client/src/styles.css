@@ -3,9 +3,82 @@
 @tailwind utilities;
 
 :root {
-  color: #17202a;
-  background: #f6f8fb;
+  /* LIGHT MODE (Charcoal + Amber + Warm Gray) */
+  --color-background: #F7F5F0;
+  --color-sidebar: #EFECE5;
+  --color-surface: #FFFFFF;
+  --color-surface-hover: #F2EFE7;
+  --color-text-primary: #191A18;
+  --color-text-secondary: #57554E;
+  --color-text-muted: #828076;
+  --color-border: #D5D0C3;
+  --color-border-subtle: #E8E4DA;
+  --color-accent: #D98200;
+  --color-accent-hover: #BF7200;
+  --color-accent-subtle: #FEF3DE;
+  --color-accent-border: #F3D299;
+  --color-accent-emphasis: #784400;
+  --color-secondary-accent: #C78B35;
+  --color-success: #196637;
+  --color-success-bg: #EDF7EE;
+  --color-success-border: #B7E0C2;
+  --color-warning: #D98200;
+  --color-danger: #B42318;
+  --color-danger-bg: #FEF3F2;
+  --color-danger-border: #FECDCA;
+  --color-input-background: #FFFFFF;
+  --color-focus-ring: #D98200;
+  --color-btn-primary-bg: #DE9319;
+  --color-btn-primary-hover: #C98010;
+  --color-btn-primary-text: #171816;
+
+  color: var(--color-text-primary);
+  background-color: var(--color-background);
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color-scheme: light;
+}
+
+html.dark {
+  /* DARK MODE (Warm Charcoal + Warm Amber + Warm Gray) */
+  --color-background: #121312;
+  --color-sidebar: #171816;
+  --color-surface: #1E201D;
+  --color-surface-hover: #262823;
+  --color-text-primary: #F4F1E8;
+  --color-text-secondary: #AAA89F;
+  --color-text-muted: #7E7C74;
+  --color-border: #32342E;
+  --color-border-subtle: #252722;
+  --color-accent: #E8B45A;
+  --color-accent-hover: #F2C372;
+  --color-accent-subtle: rgba(232, 180, 90, 0.12);
+  --color-accent-border: rgba(232, 180, 90, 0.3);
+  --color-accent-emphasis: #FAD082;
+  --color-secondary-accent: #B98C43;
+  --color-success: #6EE7A0;
+  --color-success-bg: rgba(110, 231, 160, 0.12);
+  --color-success-border: rgba(110, 231, 160, 0.28);
+  --color-warning: #E8B45A;
+  --color-danger: #F87171;
+  --color-danger-bg: rgba(248, 113, 113, 0.12);
+  --color-danger-border: rgba(248, 113, 113, 0.28);
+  --color-input-background: #171816;
+  --color-focus-ring: #E8B45A;
+  --color-btn-primary-bg: #E8B45A;
+  --color-btn-primary-hover: #F2C372;
+  --color-btn-primary-text: #171816;
+
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  transition: background-color 0.2s ease, color 0.2s ease;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 button,
@@ -15,30 +88,238 @@ textarea {
   font: inherit;
 }
 
+/* Fix browser autofill background in both light & dark mode */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px var(--color-input-background) inset !important;
+  -webkit-text-fill-color: var(--color-text-primary) !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Focus Ring */
 .focus-ring {
-  @apply focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2;
+  outline: none;
+}
+.focus-ring:focus-visible,
+.focus-ring:focus {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 1px;
 }
 
-.label {
-  @apply text-sm font-medium text-slate-700;
+/* Button Foundation (strictly rounded-lg / 8px) */
+.btn,
+.btn-primary,
+.btn-secondary,
+.btn-danger,
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.875rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 600;
+  transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  user-select: none;
+  border: 1px solid transparent;
+  white-space: nowrap;
 }
 
-.input {
-  @apply w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus-ring;
+.btn:disabled,
+.btn-primary:disabled,
+.btn-secondary:disabled,
+.btn-danger:disabled,
+.btn-ghost:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
 }
 
-.btn {
-  @apply inline-flex items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-semibold focus-ring disabled:cursor-not-allowed disabled:opacity-60;
+.btn:focus-visible,
+.btn-primary:focus-visible,
+.btn-secondary:focus-visible,
+.btn-danger:focus-visible,
+.btn-ghost:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
 }
 
 .btn-primary {
-  @apply btn bg-brand text-white hover:bg-[#1f5d72];
+  background-color: var(--color-btn-primary-bg);
+  color: var(--color-btn-primary-text);
+  border-color: rgba(0, 0, 0, 0.12);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.08);
+}
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--color-btn-primary-hover);
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.12);
+}
+.btn-primary:active:not(:disabled) {
+  transform: translateY(0.5px);
 }
 
 .btn-secondary {
-  @apply btn border border-slate-300 bg-white text-slate-800 hover:bg-slate-50;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+}
+.btn-secondary:hover:not(:disabled) {
+  background-color: var(--color-surface-hover);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
 }
 
+.btn-danger {
+  border: 1px solid var(--color-danger-border);
+  background-color: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+.btn-danger:hover:not(:disabled) {
+  background-color: var(--color-danger-border);
+}
+
+.btn-ghost {
+  border: 1px solid transparent;
+  background-color: transparent;
+  color: var(--color-text-secondary);
+}
+.btn-ghost:hover:not(:disabled) {
+  background-color: var(--color-surface-hover);
+  color: var(--color-text-primary);
+}
+
+/* Forms & Inputs */
+.label {
+  display: block;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  margin-bottom: 0.25rem;
+}
+
+.input {
+  width: 100%;
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-input-background);
+  color: var(--color-text-primary);
+  padding: 0.5625rem 0.8125rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  transition: border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+}
+.input::placeholder {
+  color: var(--color-text-secondary);
+  opacity: 0.8;
+}
+.input:hover:not(:disabled) {
+  border-color: var(--color-accent);
+}
+.input:focus {
+  outline: none;
+  border-color: var(--color-focus-ring);
+  box-shadow: 0 0 0 2px var(--color-focus-ring);
+}
+
+/* Native select styling with consistent custom chevron */
+select.input {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2357554E'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-position: right 0.75rem center;
+  background-repeat: no-repeat;
+  background-size: 1rem 1rem;
+  padding-right: 2.25rem;
+  appearance: none;
+  -webkit-appearance: none;
+}
+html.dark select.input {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23AAA89F'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+}
+
+select option {
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+  padding: 6px 10px;
+}
+
+/* Support left icon in inputs without overlap */
+.input.pl-9,
+.input-with-icon-left {
+  padding-left: 2.375rem !important;
+}
+
+/* Badges (Status pills: rounded-full, Code: rounded-md) */
 .badge {
-  @apply inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  border-radius: 9999px;
+  padding: 0.15rem 0.625rem;
+  font-size: 0.6875rem;
+  line-height: 1rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+  letter-spacing: 0.03em;
+}
+
+.badge-code {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 0.375rem;
+  padding: 0.125rem 0.5rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 600;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface-hover);
+  color: var(--color-text-primary);
+}
+
+.badge-success {
+  background-color: var(--color-success-bg);
+  color: var(--color-success);
+  border-color: var(--color-success-border);
+}
+
+.badge-neutral {
+  background-color: var(--color-surface-hover);
+  color: var(--color-text-secondary);
+  border-color: var(--color-border);
+}
+
+.badge-accent {
+  background-color: var(--color-accent-subtle);
+  color: var(--color-accent-emphasis);
+  border-color: var(--color-accent-border);
+}
+
+.badge-danger {
+  background-color: var(--color-danger-bg);
+  color: var(--color-danger);
+  border-color: var(--color-danger-border);
+}
+
+/* Subtle scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-secondary);
 }

@@ -1,7 +1,10 @@
-export default function Field({ label, children }) {
+export default function Field({ label, children, required = false }) {
   return (
-    <label className="space-y-1">
-      <span className="label">{label}</span>
+    <label className="block space-y-1.5">
+      <span className="label flex items-center gap-1">
+        {label}
+        {required && <span className="text-[var(--color-accent)]">*</span>}
+      </span>
       {children}
     </label>
   );

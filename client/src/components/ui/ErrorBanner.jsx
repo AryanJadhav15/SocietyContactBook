@@ -1,4 +1,8 @@
 export default function ErrorBanner({ message }) {
   if (!message) return null;
-  return <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{message}</div>;
+  return (
+    <div className="rounded-lg border border-[var(--color-danger-border)] bg-[var(--color-danger-bg)] px-4 py-3 text-sm font-medium text-[var(--color-danger)]">
+      {message}
+    </div>
+  );
 }
