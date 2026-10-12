@@ -15,7 +15,7 @@ export function createApp() {
   app.use(cookieParser());
   app.use(express.json({ limit: '1mb' }));
   app.use(express.urlencoded({ extended: true }));
-  app.use('/uploads', express.static(path.resolve(process.cwd(), env.UPLOAD_DIR)));
+  app.use('/uploads', express.static(path.resolve('/tmp', env.UPLOAD_DIR)));
   app.use(requireCsrf);
   app.use('/api', routes);
   app.use(notFoundHandler);
