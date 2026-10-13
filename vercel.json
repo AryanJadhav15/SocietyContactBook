@@ -4,14 +4,8 @@
     "buildCommand": "npx prisma generate",
     "installCommand": "npm install",
     "functions": {
-        "server/api/index.js": {
+        "api/index.js": {
             "maxDuration": 10
         }
-    },
-    "rewrites": [
-        {
-            "source": "/(.*)",
-            "destination": "/server/api"
-        }
-    ]
+    }
 }
