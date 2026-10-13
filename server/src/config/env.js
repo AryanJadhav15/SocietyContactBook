@@ -12,7 +12,8 @@ const schema = z.object({
   COOKIE_NAME: z.string().default('society_contact_session'),
   SETUP_TOKEN: z.string().optional(),
   UPLOAD_DIR: z.string().default('uploads'),
-  MAX_UPLOAD_BYTES: z.coerce.number().default(2 * 1024 * 1024)
+  MAX_UPLOAD_BYTES: z.coerce.number().default(2 * 1024 * 1024),
+  COOKIE_SAME_SITE: z.enum(['lax', 'strict', 'none']).default('lax')
 });
 
 export const env = schema.parse(process.env);

@@ -18,7 +18,7 @@ export function setAuthCookies(res, session) {
     const cookieOptions = {
         httpOnly: true,
         secure: isProduction,
-        sameSite: isProduction ? "none" : "lax",
+        sameSite: env.COOKIE_SAME_SITE,
         maxAge: 8 * 60 * 60 * 1000,
         path: "/",
     };
@@ -32,8 +32,17 @@ export function setAuthCookies(res, session) {
 }
 
 export function clearAuthCookies(res) {
-    res.clearCookie(env.COOKIE_NAME);
-    res.clearCookie("csrf_token");
+    const cookieOptions = {
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: env.COOKIE_SAME_SITE,
+        path: "/",
+    };
+    res.clearCookie(env.COOKIE_NAME, cookieOptions);
+    res.clearCookie("csrf_token", {
+        ...cookieOptions,
+        httpOnly: false,
+    });
 }
 
 export async function requireAuth(req, _res, next) {

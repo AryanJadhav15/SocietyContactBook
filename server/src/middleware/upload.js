@@ -5,7 +5,7 @@ import multer from "multer";
 import { env } from "../config/env.js";
 import { HttpError } from "../utils/httpError.js";
 
-const uploadDir = path.resolve("/tmp", env.UPLOAD_DIR);
+const uploadDir = path.resolve(process.cwd(), env.UPLOAD_DIR);
 fs.mkdirSync(uploadDir, { recursive: true });
 
 const storage = multer.diskStorage({
