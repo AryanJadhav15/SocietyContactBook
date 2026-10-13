@@ -1,11 +1,17 @@
 {
     "$schema": "https://openapi.vercel.sh/vercel.json",
     "version": 2,
-    "buildCommand": "npx prisma generate",
+    "buildCommand": "npm run prisma:generate",
     "installCommand": "npm install",
     "functions": {
-        "api/index.js": {
+        "server/api/index.js": {
             "maxDuration": 10
         }
-    }
+    },
+    "rewrites": [
+        {
+            "source": "/(.*)",
+            "destination": "/server/api"
+        }
+    ]
 }
