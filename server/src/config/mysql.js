@@ -13,6 +13,8 @@ const requiresSsl =
     sslMode?.toLowerCase() === "required" ||
     sslAccept?.toLowerCase() === "strict";
 
+const caCertificate = process.env.DB_CA_CERT?.replace(/\\n/g, "\n");
+
 export const sqlPool = mysql.createPool({
     uri: databaseUrl.toString(),
     connectionLimit: 10,
@@ -21,6 +23,7 @@ export const sqlPool = mysql.createPool({
         ? {
               ssl: {
                   rejectUnauthorized: true,
+                  ...(caCertificate ? { ca: caCertificate } : {}),
               },
           }
         : {}),
